@@ -1,0 +1,3 @@
+Transformers are a class of deep learning models introduced in the paper
+"Attention Is All You Need". They rely entirely on self-attention mechanisms
+to model dependencies between words in a sentence.
