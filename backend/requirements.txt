@@ -3,3 +3,12 @@ uvicorn
 qdrant-client
 sentence-transformers
 pydantic
+langchain
+langchain-core
+langchain-community
+langchain-ollama
+langchain-google-genai
+langgraph
+duckduckgo-search
+beautifulsoup4
+requests

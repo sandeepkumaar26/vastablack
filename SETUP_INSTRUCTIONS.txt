@@ -1,0 +1,29 @@
+===============================================================================
+                    CONVOLVE AI - SETUP INSTRUCTIONS
+===============================================================================
+
+ERROR 500 FIX: The system needs an AI model to work.
+
+OPTION 1: Use Google Gemini (Recommended - FREE)
+-------------------------------------------------
+1. Get a FREE API key from: https://aistudio.google.com/app/apikey
+2. Open the file: .env
+3. Uncomment the GOOGLE_API_KEY line and paste your key:
+   GOOGLE_API_KEY=your_actual_key_here
+4. Restart the backend server
+
+OPTION 2: Use Ollama (Local AI)
+--------------------------------
+1. Install Ollama from: https://ollama.com/download
+2. Open a terminal and run: ollama pull llama3.2
+3. Make sure Ollama service is running
+4. Restart the backend server
+
+===============================================================================
+AFTER SETUP:
+1. Stop the backend server (Ctrl+C in the terminal)
+2. Restart it with:
+   C:/Users/sande/Desktop/PROJECTS/convolve/.venv/Scripts/python.exe -m uvicorn backend.api.server:app --reload
+
+The error should be resolved!
+===============================================================================

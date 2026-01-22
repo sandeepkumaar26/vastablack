@@ -1,9 +1,11 @@
 import uuid
-from ingestion.text_loader import load_text
-from ingestion.text_chunker import chunk_text
-from ingestion.metadata_builder import build_metadata
-from embeddings.text_embeddings import embed_text
-from qdrant.client import qdrant_client
+from backend.ingestion.text_loader import load_text
+from backend.ingestion.text_chunker import chunk_text
+from backend.ingestion.metadata_builder import build_metadata
+from backend.embeddings.text_embeddings import generate_embeddings  # Renamed from embed_text
+from backend.qdrant.client import client  # Renamed from qdrant_client
+from qdrant_client.models import PointStruct
+from backend.ingestion.pdf_loader import load_pdf
 
 COLLECTION_NAME = "text_documents"
 
@@ -15,13 +17,23 @@ def ingest_text_document(
     difficulty_level: str,
     source: str
 ):
-    text = load_text(file_path)
+    print(f"📖 Loading file: {file_path}")
+    if file_path.endswith(".pdf"):
+        text = load_pdf(file_path)
+    else:
+        text = load_text(file_path)
+    
+    print(f"✂️ Chunking text...")
     chunks = chunk_text(text)
+    if not chunks:
+        print("⚠️ Warning: No chunks generated. Skipping ingestion.")
+        return
+
+    print(f"🧠 Generating embeddings for {len(chunks)} chunks...")
+    vectors = generate_embeddings(chunks)
 
     points = []
-
-    for idx, chunk in enumerate(chunks):
-        vector = embed_text(chunk)
+    for idx, (chunk, vector) in enumerate(zip(chunks, vectors)):
         payload = build_metadata(
             doc_id=doc_id,
             title=title,
@@ -30,18 +42,22 @@ def ingest_text_document(
             source=source,
             chunk_index=idx
         )
-
+        
+        # Ensure the actual text is in the payload for retrieval
         payload["text"] = chunk
+        
+        points.append(PointStruct(
+            id=str(uuid.uuid4()),
+            vector=vector,
+            payload=payload
+        ))
 
-        points.append({
-            "id": str(uuid.uuid4()),
-            "vector": vector,
-            "payload": payload
-        })
-
-    qdrant_client.upsert(
+    # 4. Upsert to Qdrant
+    print(f"🚀 Upserting {len(points)} points to Qdrant...")
+    client.upsert(
         collection_name=COLLECTION_NAME,
-        points=points
+        points=points,
+        wait=True 
     )
 
-    print(f"✅ Ingested {len(points)} chunks into {COLLECTION_NAME}")
+    print(f"✅ Ingested {len(points)} chunks into '{COLLECTION_NAME}'")

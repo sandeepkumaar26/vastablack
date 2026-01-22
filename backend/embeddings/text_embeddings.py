@@ -1,7 +1,14 @@
 from sentence_transformers import SentenceTransformer
+from typing import List
 
-model = SentenceTransformer("all-MiniLM-L6-v2")
+print("⏳ Loading embedding model...")
+MODEL_NAME = 'all-MiniLM-L6-v2'
+model = SentenceTransformer(MODEL_NAME)
+print("✅ Embedding model loaded.")
 
-def embed_text(text: str):
-    embedding = model.encode(text)
-    return embedding.tolist()
+def generate_embeddings(texts: List[str]) -> List[List[float]]:
+    """
+    Generates vector embeddings for a list of text strings.
+    """
+    embeddings = model.encode(texts, convert_to_numpy=True)
+    return embeddings.tolist()

@@ -1,5 +1,5 @@
 from qdrant_client.http import models
-from .client import Qdrantclient
+from qdrant.client import client
 
 def create_collection(name, vector_size, distance, payload_schema):
     if client.collection_exists(name):
